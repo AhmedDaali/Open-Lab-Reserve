@@ -1,0 +1,41 @@
+server:
+  port: 8081
+spring:
+  datasource:
+    #    url: jdbc:h2:file:./storage/database
+    #    username: sa
+    #    password: password
+    #    driverClassName: org.h2.Driver
+    url: 'jdbc:mariadb://localhost:3306/olr-dev'
+    username: olr-dev
+    password: olr
+    driver-class-name: org.mariadb.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+org:
+  jobrunr:
+    background-job-server:
+      enabled: true
+      worker-count: 2
+    dashboard:
+      enabled: true
+runtime:
+  data-directory: "./storage/data"
+accounts:
+  admin-username: 'admin@localhost'
+  admin-password: 'Ckw55ryzy1mXGxb8'
+security:
+  jwt-secret: "8TJGD0tLb0M20pxRyasR3ajktjYVfhzqVauIleiKfRJdy3SVKr95JYpC7enixXeD"
+  jwt-access-token-expiration-in-minutes: 60
+  jwt-refresh-token-expiration-in-minutes: 1440
+#server:
+#  servlet:
+#    context-path: '/abc'
+debug: off
+
