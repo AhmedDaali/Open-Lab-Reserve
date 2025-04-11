@@ -104,19 +104,6 @@ public class UserService implements UserDetailsService, ApplicationContextAware 
 
     }
 
-    @Scheduled(fixedRate = 60 * 1000)
-    @Transactional
-    public void autoDeleteGuests() {
-        for (User user : ImmutableList.copyOf(userRepository.findAll())) {
-            if (user.getRole() == User.Role.Guest) {
-                if (user.getGuestExpire() == null || LocalDateTime.now().isAfter(user.getGuestExpire())) {
-                    log.info("Deleting expired guest account " + user.getId() + " / " + user.getEmail());
-                    deleteUser(user);
-                }
-            }
-        }
-    }
-
     public void validateAuthentication(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);

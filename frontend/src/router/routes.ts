@@ -13,7 +13,12 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/admin',
-    component: () => import('layouts/AdminLayout.vue'),
+    component: () => import('layouts/AdminMainLayout.vue'),
+    children: [],
+  },
+  {
+    path: '/admin/users',
+    component: () => import('layouts/AdminUserLayout.vue'),
     children: [],
   },
   {

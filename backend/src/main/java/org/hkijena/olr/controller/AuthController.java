@@ -105,10 +105,9 @@ public class AuthController {
         user.setFirstName(payload.getFirstName());
         user.setLastName(payload.getLastName());
         user.setAffiliation(payload.getAffiliation());
-        user.setGuestExpire(LocalDateTime.now().plus(Duration.ofMinutes(accountConfig.getGuestAccountExpireMinutes())));
 
         userRepository.save(user);
 
-        return ResponseEntity.ok("Successfully registered user " + payload.getEmail() + " with role " + payload.getRole() + (payload.getRole() == User.Role.Guest ? " (Expires on " + user.getGuestExpire() + ")" : ""));
+        return ResponseEntity.ok("Successfully registered user " + payload.getEmail() + " with role " + payload.getRole());
     }
 }

@@ -5,12 +5,11 @@ import org.hkijena.olr.utils.StringUtils;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
 public class User {
-    @Serial
-    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -39,8 +38,35 @@ public class User {
     @Column(name = "allow_login")
     private Boolean allowLogin = true;
 
-    @Column(name = "guest_expire")
-    private LocalDateTime guestExpire = LocalDateTime.now();
+    @ManyToMany
+    @JoinTable(
+            name = "user_group",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private Set<Group> groups = new HashSet<>();
+
+    public Set<Group> getGroups() {
+        return Collections.unmodifiableSet(groups);
+    }
+
+    public void addGroup(Group group) {
+        this.groups.add(group);
+        group.getMembers().add(this);
+    }
+
+    public void removeGroup(Group group) {
+        this.groups.remove(group);
+        group.getMembers().remove(this);
+    }
+
+    public Boolean getAllowLogin() {
+        return allowLogin;
+    }
+
+    public void setAllowLogin(Boolean allowLogin) {
+        this.allowLogin = allowLogin;
+    }
 
     public String getAffiliation() {
         return affiliation;
@@ -48,14 +74,6 @@ public class User {
 
     public void setAffiliation(String affiliation) {
         this.affiliation = affiliation;
-    }
-
-    public LocalDateTime getGuestExpire() {
-        return guestExpire;
-    }
-
-    public void setGuestExpire(LocalDateTime guestExpire) {
-        this.guestExpire = guestExpire;
     }
 
     public boolean isAllowLogin() {

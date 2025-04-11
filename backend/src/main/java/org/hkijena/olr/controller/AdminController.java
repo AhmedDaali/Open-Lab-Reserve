@@ -68,7 +68,6 @@ public class AdminController {
             user.setFirstName(userPayload.getFirstName());
             user.setLastName(userPayload.getLastName());
             user.setRole(userPayload.getRole());
-            user.setGuestExpire(LocalDateTime.now().plus(Duration.ofMinutes(accountConfig.getGuestAccountExpireMinutes())));
             userRepository.save(user);
 
             return ResponseEntity.ok("User was successfully edited.");

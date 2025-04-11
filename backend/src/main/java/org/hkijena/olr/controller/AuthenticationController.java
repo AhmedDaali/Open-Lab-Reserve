@@ -53,9 +53,8 @@ public class AuthenticationController {
             UserAuthenticationLoginResponse response = new UserAuthenticationLoginResponse();
             response.setUsername(userDetails.getUsername());
 
-            LocalDateTime limit = tryExtractGuestLimit(userDetails);
-            Date accessExpirationDate = jwtUtil.getNewLimitedAccessExpirationDate(limit);
-            Date refreshExpirationDate = jwtUtil.getNewLimitedRefreshExpirationDate(limit);
+            Date accessExpirationDate = jwtUtil.getNewLimitedAccessExpirationDate(null);
+            Date refreshExpirationDate = jwtUtil.getNewLimitedRefreshExpirationDate(null);
 
             if (accessExpirationDate == null || refreshExpirationDate == null) {
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access expired");
@@ -71,7 +70,6 @@ public class AuthenticationController {
             if (userDetails instanceof UserPrincipal) {
                 User user = ((UserPrincipal) userDetails).getUser();
                 response.setRole(user.getRole());
-                response.setGuestExpireSeconds(Duration.between(LocalDateTime.now(), user.getGuestExpire()).getSeconds());
             } else {
                 response.setRole(User.Role.Admin);
             }
@@ -80,18 +78,6 @@ public class AuthenticationController {
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-    }
-
-    private LocalDateTime tryExtractGuestLimit(UserDetails userDetails) {
-        LocalDateTime limit = null;
-        if (userDetails instanceof UserPrincipal principal) {
-            if (principal.getUser().getRole() == User.Role.Guest) {
-                if (principal.isAccountNonExpired()) {
-                    limit = principal.getUser().getGuestExpire();
-                }
-            }
-        }
-        return limit;
     }
 
     @PostMapping("api/auth/refresh")
@@ -121,9 +107,8 @@ public class AuthenticationController {
 
                 // Extract the refresh token's expiration date
                 Date refreshExpirationDateFromToken = jwtUtil.extractExpiration(request.getRefreshToken(), true);
-                LocalDateTime limit = tryExtractGuestLimit(principal);
-                Date accessExpirationDate = jwtUtil.getNewLimitedAccessExpirationDate(limit);
-                Date refreshExpirationDate = jwtUtil.getNewLimitedRefreshExpirationDate(limit);
+                Date accessExpirationDate = jwtUtil.getNewLimitedAccessExpirationDate(null);
+                Date refreshExpirationDate = jwtUtil.getNewLimitedRefreshExpirationDate(null);
 
                 if (accessExpirationDate == null || refreshExpirationDate == null) {
                     throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Access expired");

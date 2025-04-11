@@ -9,46 +9,32 @@
         <DocumentationComponent/>
       </q-toolbar>
     </q-header>
-    <q-drawer
-      side="left"
-      :model-value="true"
-      elevated
-      class="q-pa-sm q-gutter-sm"
-    >
-      <div class="flex q-mb-lg">
-        <q-btn color="green" icon="add" @click="showAddUserDialog">Add new user</q-btn>
-        <div class="col-grow" />
-        <q-btn color="primary" icon="refresh" @click="queryBackend"/>
-      </div>
-      <div class="flex column">
-        <q-btn class="user-button" @click="showUserPage(new UserPayload())" align="left" no-caps :color="!currentlyDisplayedUserData.email ? 'primary' : 'blue-grey-3'">
-          <div class="text-left">
-            <div><q-icon name="person"/> <i>Administrator</i></div>
-            <div class="text-weight-regular"><q-icon name=""/> Administrator</div>
-          </div>
-        </q-btn>
-        <template v-for="user in userList" :key="user.id">
-          <q-btn class="user-button" @click="showUserPage(user)" align="left" no-caps :color="user.email == currentlyDisplayedUserData.email ? 'primary' : 'blue-grey-3'">
-            <div class="text-left">
-              <div><q-icon name="person"/> {{ user.email }}</div>
-              <div class="text-weight-regular"><q-icon name=""/> {{ user.role }}{{ !user.allowLogin ? " (Inactive)" : "" }}</div>
-            </div>
-          </q-btn>
-        </template>
-      </div>
-    </q-drawer>
     <q-page-container>
       <q-page padding>
         <q-toolbar class="bg-primary text-white rounded-borders q-mb-lg">
-          <q-btn :disable="!currentlyDisplayedUserData.email" color="green" icon="edit" @click="showEditUserDialog(currentlyDisplayedUserData)">Edit {{currentlyDisplayedUserData.email}}</q-btn>
+          <q-breadcrumbs active-color="white">
+            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog" @click="$router.push('/admin')"/>
+            <q-breadcrumbs-el label="Users" icon="fa-solid fa-user"/>
+          </q-breadcrumbs>
+          <div class="col-grow" />
+          <q-btn color="primary" class="q-mr-sm" icon="refresh" @click="queryBackend"/>
+          <q-btn color="green" icon="add" @click="showAddUserDialog">Add new user</q-btn>
         </q-toolbar>
         <div class="flex column">
-<!--          <q-btn v-for="project in projectList" :key="project.id" no-caps align="left" class="q-mb-sm" :to="`/project/${project.id}`">-->
-<!--            <div class="text-left">-->
-<!--              <div><q-icon name="folder"/> {{ project.name }}</div>-->
-<!--              <div class="text-weight-regular"><q-icon name=""/> ID: {{ project.id }}</div>-->
-<!--            </div>-->
-<!--          </q-btn>-->
+          <q-btn outline class="user-button" align="left" no-caps>
+            <div class="text-left">
+              <div><q-icon name="person"/> <i>Administrator</i></div>
+              <div class="text-weight-regular"><q-icon name=""/> Administrator</div>
+            </div>
+          </q-btn>
+          <template v-for="user in userList" :key="user.id">
+            <q-btn outline class="user-button" @click="showEditUserDialog(user)" align="left" no-caps>
+              <div class="text-left">
+                <div><q-icon name="person"/> {{ user.email }}</div>
+                <div class="text-weight-regular"><q-icon name=""/> {{ user.role }}{{ !user.allowLogin ? " (Inactive)" : "" }}</div>
+              </div>
+            </q-btn>
+          </template>
         </div>
       </q-page>
     </q-page-container>
@@ -161,7 +147,9 @@ import {sendFailureNotification, sendSuccessNotification} from "src/types/notifi
 import {api} from "boot/axios";
 import {instanceToPlain} from "class-transformer";
 import DocumentationComponent from "components/layout/DocumentationComponent.vue";
+import { useRouter } from 'vue-router';
 
+const $router = useRouter()
 const userList = ref<UserPayload[]>([])
 const addEditUserDialogEditMode = ref<boolean>(false)
 const addEditUserDialogAction = ref("Add")
@@ -170,7 +158,6 @@ const displayAddEditUserDialog = ref(false)
 const currentlyEditedUserData = ref<UserPayload>(
   new UserPayload()
 );
-const currentlyDisplayedUserData = ref<UserPayload>(new UserPayload())
 const registrationDataValid = computed(() => {
   if (!EmailValidator.validate(currentlyEditedUserData.value.email)) {
     return false;
@@ -254,11 +241,6 @@ function showEditUserDialog(user: UserPayload) {
   currentlyEditedUserData.value.newPasswordConfirm = "";
 }
 
-function showUserPage(user: UserPayload) {
-  currentlyDisplayedUserData.value = user;
-  queryBackend()
-}
-
 function queryBackend() {
   loadPayloadInstanceFromApi("/admin/list-users", UserPayload, userList).catch(err => console.log(err));
 }
@@ -275,6 +257,14 @@ onMounted(() => {
 }
 
 .user-button {
+  flex-grow: 1;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.menu-button {
   flex-grow: 1;
   width: 100%;
   height: 100%;

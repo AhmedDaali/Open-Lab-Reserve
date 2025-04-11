@@ -36,14 +36,7 @@ public class UserPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        if (user.getRole() == User.Role.Guest) {
-            if (user.getGuestExpire() != null) {
-                return LocalDateTime.now().isBefore(user.getGuestExpire());
-            }
-            return false;
-        } else {
-            return true;
-        }
+        return true;
     }
 
     @Override
