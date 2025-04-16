@@ -28,12 +28,12 @@ public class Group {
         return Collections.unmodifiableSet(members);
     }
 
-    public void addUser(User user) {
+    public void addMember(User user) {
         this.members.add(user);
         user.getGroups().add(this);
     }
 
-    public void removeUser(User user) {
+    public void removeMember(User user) {
         this.members.remove(user);
         user.getGroups().remove(this);
     }
