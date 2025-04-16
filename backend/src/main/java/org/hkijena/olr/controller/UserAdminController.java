@@ -14,15 +14,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @RestController
-public class AdminController {
+public class UserAdminController {
 
     private final AccountConfig accountConfig;
     private final UserRepository userRepository;
@@ -30,7 +28,7 @@ public class AdminController {
     private final UserService userService;
 
     @Autowired
-    public AdminController(AccountConfig accountConfig, UserRepository userRepository, PasswordEncoder passwordEncoder, UserService userService) {
+    public UserAdminController(AccountConfig accountConfig, UserRepository userRepository, PasswordEncoder passwordEncoder, UserService userService) {
         this.accountConfig = accountConfig;
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;

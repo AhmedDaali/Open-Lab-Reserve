@@ -20,31 +20,6 @@ public class PhysicalLab {
     @JoinColumn(name = "facility_id")
     private Facility facility;
 
-    // Permissions
-    @ManyToMany
-    @JoinTable(
-            name = "lab_booking_group",
-            joinColumns = @JoinColumn(name = "lab_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> createBookingGroups = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "lab_cancel_group",
-            joinColumns = @JoinColumn(name = "lab_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> cancelBookingGroups = new HashSet<>();
-
-    @ManyToMany
-    @JoinTable(
-            name = "lab_manage_group",
-            joinColumns = @JoinColumn(name = "lab_id"),
-            inverseJoinColumns = @JoinColumn(name = "group_id")
-    )
-    private Set<Group> managerGroups = new HashSet<>();
-
     public Long getId() {
         return id;
     }
@@ -67,29 +42,5 @@ public class PhysicalLab {
 
     public void setFacility(Facility facility) {
         this.facility = facility;
-    }
-
-    public Set<Group> getCreateBookingGroups() {
-        return createBookingGroups;
-    }
-
-    public void setCreateBookingGroups(Set<Group> bookingGroups) {
-        this.createBookingGroups = bookingGroups;
-    }
-
-    public Set<Group> getCancelBookingGroups() {
-        return cancelBookingGroups;
-    }
-
-    public void setCancelBookingGroups(Set<Group> cancelGroups) {
-        this.cancelBookingGroups = cancelGroups;
-    }
-
-    public Set<Group> getManagerGroups() {
-        return managerGroups;
-    }
-
-    public void setManagerGroups(Set<Group> managerGroups) {
-        this.managerGroups = managerGroups;
     }
 }

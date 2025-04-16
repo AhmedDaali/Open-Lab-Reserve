@@ -18,7 +18,22 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/admin/users',
-    component: () => import('layouts/AdminUserLayout.vue'),
+    component: () => import('layouts/AdminUsersLayout.vue'),
+    children: [],
+  },
+  {
+    path: '/admin/groups',
+    component: () => import('layouts/AdminGroupsLayout.vue'),
+    children: [],
+  },
+  {
+    path: '/admin/resources',
+    component: () => import('layouts/AdminResourcesLayout.vue'),
+    children: [],
+  },
+  {
+    path: '/admin/facilities',
+    component: () => import('layouts/AdminFacilitiesLayout.vue'),
     children: [],
   },
   {

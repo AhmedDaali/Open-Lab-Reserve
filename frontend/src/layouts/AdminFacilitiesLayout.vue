@@ -13,7 +13,7 @@
       <q-page padding>
         <q-toolbar class="bg-primary text-white rounded-borders q-mb-lg">
           <q-breadcrumbs active-color="white">
-            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog" @click="$router.push('/admin')"/>
+            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog" to="/admin" />
             <q-breadcrumbs-el label="Users" icon="fa-solid fa-user"/>
           </q-breadcrumbs>
           <div class="col-grow" />
@@ -41,7 +41,7 @@
   </q-layout>
   <!-- Add/edit user dialog -->
   <q-dialog v-model="displayAddEditUserDialog" persistent>
-    <q-card class="dialog-add-edit-user">
+    <q-card class="dialog-add-edit-group">
       <q-card-section class="row items-center q-pb-none">
         <div class="text-h6">{{ addEditUserDialogTitle }}</div>
         <q-space/>
@@ -147,9 +147,7 @@ import {sendFailureNotification, sendSuccessNotification} from "src/types/notifi
 import {api} from "boot/axios";
 import {instanceToPlain} from "class-transformer";
 import DocumentationComponent from "components/layout/DocumentationComponent.vue";
-import { useRouter } from 'vue-router';
 
-const $router = useRouter()
 const userList = ref<UserPayload[]>([])
 const addEditUserDialogEditMode = ref<boolean>(false)
 const addEditUserDialogAction = ref("Add")
@@ -251,7 +249,7 @@ onMounted(() => {
 
 </script>
 <style scoped lang="scss">
-.dialog-add-edit-user {
+.dialog-add-edit-group {
   width: 700px;
   max-width: 80vw;
 }

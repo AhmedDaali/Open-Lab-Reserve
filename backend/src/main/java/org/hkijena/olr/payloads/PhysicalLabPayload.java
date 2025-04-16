@@ -14,12 +14,6 @@ public class PhysicalLabPayload {
     private String name;
     @JsonProperty
     private long facilityId;
-    @JsonProperty
-    private Set<Long> createBookingGroupIds = new HashSet<>();
-    @JsonProperty
-    private Set<Long> cancelBookingGroupIds = new HashSet<>();
-    @JsonProperty
-    private Set<Long> managerGroupIds = new HashSet<>();
 
     public PhysicalLabPayload() {
     }
@@ -28,21 +22,5 @@ public class PhysicalLabPayload {
         this.id = physicalLab.getId() != null ? physicalLab.getId() : -1;
         this.name = physicalLab.getName();
         this.facilityId = physicalLab.getFacility() != null ? (physicalLab.getFacility().getId() != null ? physicalLab.getFacility().getId() : -1) : -1;
-        for (Group group : physicalLab.getCreateBookingGroups()) {
-            if(group.getId() != null) {
-                createBookingGroupIds.add(group.getId());
-            }
-        }
-        for (Group group : physicalLab.getCancelBookingGroups()) {
-            if(group.getId() != null) {
-                cancelBookingGroupIds.add(group.getId());
-            }
-        }
-        for (Group group : physicalLab.getManagerGroups()) {
-            if(group.getId() != null) {
-                managerGroupIds.add(group.getId());
-            }
-        }
-
     }
 }

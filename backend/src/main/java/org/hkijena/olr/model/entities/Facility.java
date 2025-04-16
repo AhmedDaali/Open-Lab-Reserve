@@ -112,5 +112,11 @@ public class Facility {
         physicalLabs.remove(lab);
         lab.setFacility(null);
     }
+
+    public void eraseGroup(Group group) {
+        createBookingGroups.remove(group);
+        cancelBookingGroups.remove(group);
+        managerGroups.remove(group);
+    }
 }
 

@@ -13,14 +13,14 @@
       <q-page padding>
         <q-toolbar class="bg-primary text-white rounded-borders q-mb-lg">
           <q-breadcrumbs active-color="white">
-            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog" @click="$router.push('/admin')"/>
+            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog"/>
           </q-breadcrumbs>
         </q-toolbar>
         <div class="flex column">
-          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-user" label="Users" @click="goToUsers"/>
-          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-users-rectangle" label="Groups"/>
-          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-sitemap" label="Facilities" />
-          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-microchip" label="Resources" />
+          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-user" label="Users" to="/admin/users"/>
+          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-users-rectangle" label="Groups" to="/admin/groups"/>
+          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-sitemap" label="Facilities" to="/admin/facilities"/>
+          <q-btn class="menu-button" align="left" color="primary" outline size="xl" icon="fa-solid fa-microchip" label="Resources" to="/admin/resources"/>
         </div>
       </q-page>
     </q-page-container>
@@ -31,13 +31,6 @@
 import HeaderLogoButtonComponent from "components/layout/HeaderLogoButtonComponent.vue";
 import AuthManagerComponent from "components/layout/AuthManagerComponent.vue";
 import DocumentationComponent from "components/layout/DocumentationComponent.vue";
-import { useRouter } from 'vue-router';
-
-const $router = useRouter()
-
-function goToUsers() {
-  $router.push("/admin/users");
-}
 
 </script>
 <style scoped lang="scss">
