@@ -21,17 +21,24 @@
           <q-btn color="green" icon="add" @click="showAddUserDialog">Add new user</q-btn>
         </q-toolbar>
         <div class="flex column">
-          <q-btn outline class="user-button" align="left" no-caps>
+          <q-btn outline color="secondary" class="user-button" align="left" no-caps>
             <div class="text-left">
               <div><q-icon name="person"/> <i>Administrator</i></div>
               <div class="text-weight-regular"><q-icon name=""/> Administrator</div>
+              <div class="text-weight-regular"><q-icon name=""/> -</div>
             </div>
           </q-btn>
           <template v-for="user in userList" :key="user.id">
-            <q-btn outline class="user-button" @click="showEditUserDialog(user)" align="left" no-caps>
+            <q-btn outline color="primary" class="user-button" @click="showEditUserDialog(user)" align="left" no-caps>
               <div class="text-left">
                 <div><q-icon name="person"/> {{ user.email }}</div>
                 <div class="text-weight-regular"><q-icon name=""/> {{ user.role }}{{ !user.allowLogin ? " (Inactive)" : "" }}</div>
+                <div class="text-weight-regular"><q-icon name=""/>
+                  <template v-if="user.groups.length == 0">-</template>
+                  <template v-else>
+                    <q-chip dense v-for="group in user.groups" v-bind:key="group.id">{{ group.name }}</q-chip>
+                  </template>
+                </div>
               </div>
             </q-btn>
           </template>
@@ -119,6 +126,16 @@
             filled
             label="Role"
           />
+          <q-select
+            v-model="currentlyEditedUserData.groups"
+            :options="groupList"
+            multiple
+            filled
+            use-chips
+            option-label="name"
+            label="Groups"
+          >
+          </q-select>
           <div>
             <q-checkbox
               v-model="currentlyEditedUserData.allowLogin"
@@ -147,8 +164,10 @@ import {sendFailureNotification, sendSuccessNotification} from "src/types/notifi
 import {api} from "boot/axios";
 import {instanceToPlain} from "class-transformer";
 import DocumentationComponent from "components/layout/DocumentationComponent.vue";
+import { GroupPayload } from 'src/types/payloads/group';
 
 const userList = ref<UserPayload[]>([])
+const groupList = ref<GroupPayload[]>([])
 const addEditUserDialogEditMode = ref<boolean>(false)
 const addEditUserDialogAction = ref("Add")
 const addEditUserDialogTitle = ref("Add user")
@@ -241,6 +260,7 @@ function showEditUserDialog(user: UserPayload) {
 
 function queryBackend() {
   loadPayloadInstanceFromApi("/admin/list-users", UserPayload, userList).catch(err => console.log(err));
+  loadPayloadInstanceFromApi("/admin/list-groups", GroupPayload, groupList).catch(err => console.log(err));
 }
 
 onMounted(() => {

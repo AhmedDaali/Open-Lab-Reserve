@@ -47,7 +47,7 @@ public class User {
     private Set<Group> groups = new HashSet<>();
 
     public Set<Group> getGroups() {
-        return Collections.unmodifiableSet(groups);
+        return groups;
     }
 
     public void addGroup(Group group) {

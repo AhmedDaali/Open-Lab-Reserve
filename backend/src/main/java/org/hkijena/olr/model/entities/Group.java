@@ -25,7 +25,7 @@ public class Group {
     private Set<User> members = new HashSet<>();
 
     public Set<User> getMembers() {
-        return Collections.unmodifiableSet(members);
+        return members;
     }
 
     public void addMember(User user) {

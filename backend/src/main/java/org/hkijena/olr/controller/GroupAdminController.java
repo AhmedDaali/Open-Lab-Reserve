@@ -12,12 +12,16 @@ import org.hkijena.olr.repositories.UserRepository;
 import org.hkijena.olr.services.UserService;
 import org.hkijena.olr.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +57,7 @@ public class GroupAdminController {
     public ResponseEntity<String> createGroup(Authentication authentication, @RequestBody GroupPayload groupPayload) {
         userService.validateIsAdmin(authentication);
         if (StringUtils.isNullOrEmpty(groupPayload.getName())) {
-            throw new IllegalArgumentException("Name is null or empty");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Name is null or empty");
         }
         Group group = new Group();
         group.setName(groupPayload.getName());
@@ -76,7 +80,7 @@ public class GroupAdminController {
 
             return ResponseEntity.ok().body("Edited group with ID " + group.getId());
         } else {
-            throw new IllegalArgumentException("Group does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group does not exist");
         }
     }
 
@@ -104,7 +108,7 @@ public class GroupAdminController {
 
             return ResponseEntity.ok().body("Deleted group with ID " + group.getId());
         } else {
-            throw new IllegalArgumentException("Group does not exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Group does not exist");
         }
     }
 }

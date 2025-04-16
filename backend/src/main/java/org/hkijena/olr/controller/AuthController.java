@@ -1,9 +1,12 @@
 package org.hkijena.olr.controller;
 
 import org.hkijena.olr.config.AccountConfig;
+import org.hkijena.olr.model.entities.Group;
 import org.hkijena.olr.model.entities.User;
+import org.hkijena.olr.payloads.GroupPayload;
 import org.hkijena.olr.payloads.UserPayload;
 import org.hkijena.olr.payloads.register.UserRegistrationAllowedFeaturesPayload;
+import org.hkijena.olr.repositories.GroupRepository;
 import org.hkijena.olr.repositories.UserRepository;
 import org.hkijena.olr.services.UserService;
 import org.hkijena.olr.utils.StringUtils;
@@ -20,7 +23,10 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 public class AuthController {
@@ -29,14 +35,16 @@ public class AuthController {
     private final AccountConfig accountConfig;
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final GroupRepository groupRepository;
 
 
     @Autowired
-    public AuthController(UserRepository userRepository, AccountConfig accountConfig, PasswordEncoder passwordEncoder, UserService userService) {
+    public AuthController(UserRepository userRepository, AccountConfig accountConfig, PasswordEncoder passwordEncoder, UserService userService, GroupRepository groupRepository) {
         this.userRepository = userRepository;
         this.accountConfig = accountConfig;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.groupRepository = groupRepository;
     }
 
     @GetMapping("/api/auth/registration-features")
@@ -97,6 +105,21 @@ public class AuthController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid affiliation");
         }
 
+        // Fetch groups
+        Set<Group> groups = new HashSet<>();
+        if(userService.isAdmin(authentication)) {
+            // Only admins can assign groups
+            for (GroupPayload groupPayload : payload.getGroups()) {
+                Optional<Group> group_ = groupRepository.findById(groupPayload.getId());
+                if(group_.isPresent()) {
+                    groups.add(group_.get());
+                }
+                else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid group");
+                }
+            }
+        }
+
         // Create the user
         User user = new User();
         user.setRole(payload.getRole());
@@ -105,6 +128,9 @@ public class AuthController {
         user.setFirstName(payload.getFirstName());
         user.setLastName(payload.getLastName());
         user.setAffiliation(payload.getAffiliation());
+        for (Group group : groups) {
+            user.addGroup(group);
+        }
 
         userRepository.save(user);
 

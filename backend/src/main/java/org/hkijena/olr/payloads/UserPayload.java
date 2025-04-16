@@ -2,7 +2,11 @@ package org.hkijena.olr.payloads;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import org.hkijena.olr.model.entities.Group;
 import org.hkijena.olr.model.entities.User;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class UserPayload {
 
@@ -14,9 +18,9 @@ public class UserPayload {
     private String affiliation = "";
     private String newPassword;
     private String newPasswordConfirm;
-
     private boolean allowLogin = true;
     private User.Role role = User.Role.User;
+    private Set<GroupPayload> groups = new HashSet<>();
 
     public UserPayload() {
 
@@ -30,6 +34,19 @@ public class UserPayload {
         this.affiliation = user.getAffiliation();
         this.allowLogin = user.isAllowLogin();
         this.role = user.getRole();
+        for (Group group : user.getGroups()) {
+            this.groups.add(new GroupPayload(group));
+        }
+    }
+
+    @JsonGetter("groups")
+    public Set<GroupPayload> getGroups() {
+        return groups;
+    }
+
+    @JsonSetter("groups")
+    public void setGroups(Set<GroupPayload> groups) {
+        this.groups = groups;
     }
 
     @JsonGetter("affiliation")

@@ -1,56 +1,99 @@
-AdminGroupLayout.vue<template>
+<template>
   <q-layout view="hHh lpR fFf">
     <q-header>
       <q-toolbar>
         <q-toolbar-title class="row items-center q-gutter-sm">
-          <HeaderLogoButtonComponent/>
+          <HeaderLogoButtonComponent />
         </q-toolbar-title>
-        <AuthManagerComponent/>
-        <DocumentationComponent/>
+        <AuthManagerComponent />
+        <DocumentationComponent />
       </q-toolbar>
     </q-header>
     <q-page-container>
       <q-page padding>
         <q-toolbar class="bg-primary text-white rounded-borders q-mb-lg">
           <q-breadcrumbs active-color="white">
-            <q-breadcrumbs-el label="Admin" icon="fa-solid fa-cog" to="/admin" />
-            <q-breadcrumbs-el label="Users" icon="fa-solid fa-user"/>
+            <q-breadcrumbs-el
+              label="Admin"
+              icon="fa-solid fa-cog"
+              to="/admin"
+            />
+            <q-breadcrumbs-el
+              label="Resource types"
+              icon="fa-solid fa-microchip"
+            />
           </q-breadcrumbs>
           <div class="col-grow" />
-          <q-btn color="primary" class="q-mr-sm" icon="refresh" @click="queryBackend"/>
-          <q-btn color="green" icon="add" @click="showAddUserDialog">Add new user</q-btn>
+          <q-btn
+            color="primary"
+            class="q-mr-sm"
+            icon="refresh"
+            @click="queryBackend"
+          />
+          <q-btn color="green" icon="add" @click="showAddResourceTypeDialog"
+          >Add new resource type</q-btn
+          >
         </q-toolbar>
         <div class="flex column">
-          <q-btn outline class="user-button" align="left" no-caps>
-            <div class="text-left">
-              <div><q-icon name="person"/> <i>Administrator</i></div>
-              <div class="text-weight-regular"><q-icon name=""/> Administrator</div>
-            </div>
-          </q-btn>
-          <template v-for="user in userList" :key="user.id">
-            <q-btn outline class="user-button" @click="showEditUserDialog(user)" align="left" no-caps>
+          <template v-for="resourceType in resourceTypeList" :key="resourceType.id">
+            <q-btn
+              color="primary"
+              outline
+              class="resourceType-button"
+              @click="showEditResourceTypeDialog(resourceType)"
+              align="left"
+              no-caps
+            >
               <div class="text-left">
-                <div><q-icon name="person"/> {{ user.email }}</div>
-                <div class="text-weight-regular"><q-icon name=""/> {{ user.role }}{{ !user.allowLogin ? " (Inactive)" : "" }}</div>
+                <div>
+                  <q-icon :name="resourceType.icon || 'fa-solid fa-tag'" />
+                  {{ resourceType.name }}
+                </div>
+                <div class="text-weight-regular">
+                  <q-icon name="" />
+                  {{ resourceType.description }}
+                </div>
+                <div class="text-weight-regular">
+                  <q-icon name="" />
+                  ID {{ resourceType.id }}
+                </div>
               </div>
             </q-btn>
           </template>
+          <q-btn
+            outline
+            color="green"
+            class="resourceType-button"
+            align="left"
+            no-caps
+            @click="showAddResourceTypeDialog"
+          >
+            <div class="text-left">
+              <div>
+                <q-icon name="add" />
+                Add new resource type
+              </div>
+              <div class="text-weight-regular">
+                <q-icon name="" />
+              </div>
+            </div>
+          </q-btn>
         </div>
       </q-page>
     </q-page-container>
   </q-layout>
-  <!-- Add/edit user dialog -->
-  <q-dialog v-model="displayAddEditUserDialog" persistent>
-    <q-card class="dialog-add-edit-group">
+  <!-- Add/edit resourceType dialog -->
+  <q-dialog v-model="displayAddEditResourceTypeDialog" persistent>
+    <q-card class="dialog-add-edit-resourceType">
       <q-card-section class="row items-center q-pb-none">
-        <div class="text-h6">{{ addEditUserDialogTitle }}</div>
-        <q-space/>
-        <q-btn icon="close" flat round dense v-close-popup/>
+        <div class="text-h6">{{ addEditResourceTypeDialogTitle }}</div>
+        <q-space />
+        <q-btn icon="close" flat round dense v-close-popup />
       </q-card-section>
       <q-card-section>
         <q-form
           class="q-gutter-md"
-          @submit="doAddEditUser"
+          @submit="doAddEditResourceType"
           autocorrect="off"
           autocapitalize="off"
           autocomplete="off"
@@ -58,74 +101,27 @@ AdminGroupLayout.vue<template>
         >
           <q-input
             type="text"
-            v-model="currentlyEditedUserData.firstName"
+            v-model="currentlyEditedResourceTypeData.name"
             filled
-            label="First name"
+            label="Name"
             :rules="[(val) => !!val || 'Field is required']"
             autocomplete="off"
           />
           <q-input
             type="text"
-            v-model="currentlyEditedUserData.lastName"
+            v-model="currentlyEditedResourceTypeData.description"
             filled
-            label="Last name"
-            :rules="[(val) => !!val || 'Field is required']"
+            label="Description"
             autocomplete="off"
           />
-          <q-input
-            type="text"
-            v-model="currentlyEditedUserData.email"
-            filled
-            label="E-Mail"
-            :rules="[
-              (val) => EmailValidator.validate(val) || 'Not a valid email',
-            ]"
-            :disable="addEditUserDialogEditMode"
-            autocomplete="off"
-          />
-          <q-input
-            type="password"
-            v-model="currentlyEditedUserData.newPassword"
-            filled
-            :label="addEditUserDialogEditMode ? 'Password (leave empty to keep unchanged)' : 'Password'"
-            :rules="[
-              (val) => (!!val || addEditUserDialogEditMode) || 'Field is required',
-              (val) => ((val && val.length >= 6) || addEditUserDialogEditMode) || 'Password too short',
-            ]"
-            autocomplete="new-password"
-          />
-          <q-input
-            type="password"
-            v-model="currentlyEditedUserData.newPasswordConfirm"
-            filled
-            label="Confirm password"
-            :rules="[
-              (val) =>
-                (val == currentlyEditedUserData.newPassword || addEditUserDialogEditMode) || 'Passwords do not match',
-            ]"
-            autocomplete="off"
-          />
-          <q-input
-            type="text"
-            v-model="currentlyEditedUserData.affiliation"
-            filled
-            label="Affiliation"
-            :rules="[(val) => !!val || 'Field is required']"
-            autocomplete="off"
-          />
-          <q-select
-            v-model="currentlyEditedUserData.role"
-            :options="[UserRole.User, UserRole.Admin, UserRole.Guest]"
-            filled
-            label="Role"
-          />
-          <div>
-            <q-checkbox
-              v-model="currentlyEditedUserData.allowLogin"
-              label="Allow Login" />
-          </div>
           <q-btn
-            :label="addEditUserDialogAction"
+            label="Delete"
+            color="red-4"
+            v-if="addEditResourceTypeDialogEditMode"
+            @click="doDeleteResourceType"
+          />
+          <q-btn
+            :label="addEditResourceTypeDialogAction"
             type="submit"
             color="primary"
             :disable="!registrationDataValid"
@@ -137,124 +133,105 @@ AdminGroupLayout.vue<template>
 </template>
 
 <script setup lang="ts">
-import HeaderLogoButtonComponent from "components/layout/HeaderLogoButtonComponent.vue";
-import AuthManagerComponent from "components/layout/AuthManagerComponent.vue";
-import * as EmailValidator from "email-validator";
-import {UserPayload, UserRole} from "src/types/registration";
-import {computed, onMounted, ref} from "vue";
-import {loadPayloadInstanceFromApi} from "src/types/common";
-import {sendFailureNotification, sendSuccessNotification} from "src/types/notification";
-import {api} from "boot/axios";
-import {instanceToPlain} from "class-transformer";
-import DocumentationComponent from "components/layout/DocumentationComponent.vue";
+import HeaderLogoButtonComponent from 'components/layout/HeaderLogoButtonComponent.vue';
+import AuthManagerComponent from 'components/layout/AuthManagerComponent.vue';
+import { computed, onMounted, ref } from 'vue';
+import { loadPayloadInstanceFromApi } from 'src/types/common';
+import {
+  sendFailureNotification,
+  sendSuccessNotification,
+} from 'src/types/notification';
+import { api } from 'boot/axios';
+import { instanceToPlain } from 'class-transformer';
+import DocumentationComponent from 'components/layout/DocumentationComponent.vue';
+import { onDialogYes } from 'src/types/dialog';
+import { ResourceTypePayload } from 'src/types/payloads/resource_type';
 
-const userList = ref<UserPayload[]>([])
-const addEditUserDialogEditMode = ref<boolean>(false)
-const addEditUserDialogAction = ref("Add")
-const addEditUserDialogTitle = ref("Add user")
-const displayAddEditUserDialog = ref(false)
-const currentlyEditedUserData = ref<UserPayload>(
-  new UserPayload()
-);
+const resourceTypeList = ref<ResourceTypePayload[]>([]);
+const addEditResourceTypeDialogEditMode = ref<boolean>(false);
+const addEditResourceTypeDialogAction = ref('Add');
+const addEditResourceTypeDialogTitle = ref('Add resourceType');
+const displayAddEditResourceTypeDialog = ref(false);
+const currentlyEditedResourceTypeData = ref<ResourceTypePayload>(new ResourceTypePayload());
 const registrationDataValid = computed(() => {
-  if (!EmailValidator.validate(currentlyEditedUserData.value.email)) {
-    return false;
-  }
-  if (
-    !currentlyEditedUserData.value.newPassword ||
-    currentlyEditedUserData.value.newPassword.length < 6
-  ) {
-    return addEditUserDialogEditMode.value;
-  }
-  if (!currentlyEditedUserData.value.firstName) {
-    return false;
-  }
-  if (!currentlyEditedUserData.value.lastName) {
-    return false;
-  }
-  if (!currentlyEditedUserData.value.affiliation) {
-    return false;
-  }
-  if (!currentlyEditedUserData.value.role) {
+  if (!currentlyEditedResourceTypeData.value.name) {
     return false;
   }
   return true;
 });
 
-function doAddEditUser() {
-  if (addEditUserDialogEditMode.value) {
-    if (!registrationDataValid.value) {
-      sendFailureNotification('The entered values are not valid!');
-      return;
-    }
-
-    api
-      .post('admin/edit-user', instanceToPlain(currentlyEditedUserData.value))
-      .then((response) => {
-        sendSuccessNotification(response.data);
-      })
-      .catch((reason) => {
-        sendFailureNotification('Unable to edit: ' + reason);
-      })
-      .finally(() => {
-        displayAddEditUserDialog.value = false;
-        queryBackend()
-      });
-
-  } else {
-    if (!registrationDataValid.value) {
-      sendFailureNotification('The entered values are not valid!');
-      return;
-    }
-
-    api
-      .post('auth/register', instanceToPlain(currentlyEditedUserData.value))
-      .then((response) => {
-        sendSuccessNotification(response.data);
-      })
-      .catch((reason) => {
-        sendFailureNotification('Unable to register: ' + reason);
-      })
-      .finally(() => {
-        displayAddEditUserDialog.value = false;
-        queryBackend()
-      });
+function doAddEditResourceType() {
+  if (!registrationDataValid.value) {
+    sendFailureNotification('The entered values are not valid!');
+    return;
   }
+
+  api
+    .post( addEditResourceTypeDialogEditMode.value ? 'admin/edit-resource-type' : 'admin/create-resource-type', instanceToPlain(currentlyEditedResourceTypeData.value))
+    .then((response) => {
+      sendSuccessNotification(response.data);
+    })
+    .catch((reason) => {
+      sendFailureNotification('Unable to create/edit: ' + reason);
+    })
+    .finally(() => {
+      displayAddEditResourceTypeDialog.value = false;
+      queryBackend();
+    });
 }
 
-function showAddUserDialog() {
-  addEditUserDialogTitle.value = "Add new user";
-  currentlyEditedUserData.value = new UserPayload()
-  addEditUserDialogAction.value = "Create"
-  displayAddEditUserDialog.value = true;
-  addEditUserDialogEditMode.value = false
+function doDeleteResourceType() {
+  onDialogYes("Delete resource type '" + currentlyEditedResourceTypeData.value.name + "'", "Do you really want to delete this resource type? You cannot undo this operation.").then(() => {
+    api
+      .post( 'admin/delete-resource-type', instanceToPlain(currentlyEditedResourceTypeData.value))
+      .then((response) => {
+        sendSuccessNotification(response.data);
+      })
+      .catch((reason) => {
+        sendFailureNotification('Unable to delete: ' + reason);
+      })
+      .finally(() => {
+        displayAddEditResourceTypeDialog.value = false;
+        queryBackend();
+      });
+  })
 }
 
-function showEditUserDialog(user: UserPayload) {
-  addEditUserDialogTitle.value = `Edit user ${user.email}`
-  currentlyEditedUserData.value = user;
-  addEditUserDialogAction.value = "Edit"
-  displayAddEditUserDialog.value = true;
-  addEditUserDialogEditMode.value = true
-  currentlyEditedUserData.value.newPasswordConfirm = "";
+function showAddResourceTypeDialog() {
+  addEditResourceTypeDialogTitle.value = 'Add new resource type';
+  currentlyEditedResourceTypeData.value = new ResourceTypePayload();
+  addEditResourceTypeDialogAction.value = 'Create';
+  displayAddEditResourceTypeDialog.value = true;
+  addEditResourceTypeDialogEditMode.value = false;
+}
+
+function showEditResourceTypeDialog(resourceType: ResourceTypePayload) {
+  addEditResourceTypeDialogTitle.value = `Edit resource type ID=${resourceType.id}`;
+  currentlyEditedResourceTypeData.value = resourceType;
+  addEditResourceTypeDialogAction.value = 'Edit';
+  displayAddEditResourceTypeDialog.value = true;
+  addEditResourceTypeDialogEditMode.value = true;
 }
 
 function queryBackend() {
-  loadPayloadInstanceFromApi("/admin/list-users", UserPayload, userList).catch(err => console.log(err));
+  loadPayloadInstanceFromApi(
+    '/admin/list-resource-types',
+    ResourceTypePayload,
+    resourceTypeList
+  ).catch((err) => console.log(err));
 }
 
 onMounted(() => {
-  queryBackend()
-})
-
+  queryBackend();
+});
 </script>
 <style scoped lang="scss">
-.dialog-add-edit-group {
+.dialog-add-edit-resourceType {
   width: 700px;
   max-width: 80vw;
 }
 
-.user-button {
+.resourceType-button {
   flex-grow: 1;
   width: 100%;
   height: 100%;
