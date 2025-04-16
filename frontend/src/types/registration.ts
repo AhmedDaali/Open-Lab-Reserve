@@ -1,4 +1,5 @@
 import { Expose } from 'class-transformer';
+import { GroupPayload } from 'src/types/payloads/group';
 
 export enum UserRole {
   User = 'User',
@@ -53,4 +54,7 @@ export class UserPayload {
 
   @Expose()
   allowLogin: boolean = true;
+
+  @Expose()
+  groups: GroupPayload[] = [];
 }
