@@ -38,10 +38,10 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/project/:id",
-    component: () => import('layouts/ProjectLayout.vue'),
+    component: () => import('layouts/DefaultLayout.vue'),
     children: [],
   },
-  {
+  /*{
     path: "/tasks/:id",
     component: () => import('layouts/ProjectTasksLayout.vue'),
     children: [],
@@ -60,7 +60,7 @@ const routes: RouteRecordRaw[] = [
     path: "/results/view/:id/:path",
     component: () => import('layouts/ResultsViewLayout.vue'),
     children: [],
-  },
+  },*/
   {
     path: "/mask-image-annotation/:imageId/:annotationTypeId",
     component: () => import('layouts/MaskImageAnnotationLayout.vue'),
