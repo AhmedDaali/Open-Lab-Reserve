@@ -17,13 +17,18 @@ public class Resource {
     @JoinColumn(name = "type_id")
     private ResourceType type;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lab_id", nullable = false)
+    private PhysicalLab physicalLab;
+
     // Constructors
 
     public Resource() {}
 
-    public Resource(String specification, ResourceType type) {
+    public Resource(String specification, ResourceType type, PhysicalLab physicalLab) {
         this.specification = specification;
         this.type = type;
+        this.physicalLab = physicalLab;
     }
 
     // Getters and setters
@@ -37,4 +42,12 @@ public class Resource {
     public ResourceType getType() { return type; }
 
     public void setType(ResourceType type) { this.type = type; }
+
+    public PhysicalLab getPhysicalLab() {
+        return physicalLab;
+    }
+
+    public void setPhysicalLab(PhysicalLab physicalLab) {
+        this.physicalLab = physicalLab;
+    }
 }
