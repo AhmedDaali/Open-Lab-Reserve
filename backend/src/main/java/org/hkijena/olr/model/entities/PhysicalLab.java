@@ -20,6 +20,11 @@ public class PhysicalLab {
     @JoinColumn(name = "facility_id")
     private Facility facility;
 
+    // A physical laboratory can have multiple resources
+    @OneToMany(mappedBy = "physicalLab", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Resource> resources = new HashSet<>();
+
+    // ----- Getters & Setters -----
     public Long getId() {
         return id;
     }
@@ -42,5 +47,24 @@ public class PhysicalLab {
 
     public void setFacility(Facility facility) {
         this.facility = facility;
+    }
+
+    public Set<Resource> getResources() {
+        return resources;
+    }
+
+    public void setResources(Set<Resource> resources) {
+        this.resources = resources;
+    }
+
+    // ----- Helper methods to synchronize both sides -----
+    public void addResource(Resource resource) {
+        resources.add(resource);
+        resource.setPhysicalLab(this);
+    }
+
+    public void removeResource(Resource resource) {
+        resources.remove(resource);
+        resource.setPhysicalLab(null);
     }
 }
