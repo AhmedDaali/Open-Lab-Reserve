@@ -41,6 +41,10 @@ public class ReservationService {
      * Creates a new reservation after checking for conflicts.
      */
     public Reservation createReservation(Reservation reservation) {
+        // Validate start and end times
+        if (reservation.getStartTime().isAfter(reservation.getEndTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start time must be before end time.");
+        }
         // Check for overlapping reservations
         List<Reservation> overlapping = reservationRepository.findByPhysicalLabAndStartTimeBetween(
                 reservation.getPhysicalLab(),

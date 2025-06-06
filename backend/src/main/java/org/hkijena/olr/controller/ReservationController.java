@@ -4,6 +4,7 @@ import org.hkijena.olr.model.entities.PhysicalLab;
 import org.hkijena.olr.model.entities.Reservation;
 import org.hkijena.olr.model.entities.User;
 import org.hkijena.olr.model.UserPrincipal;
+import org.hkijena.olr.payloads.ReservationPayload;
 import org.hkijena.olr.repositories.PhysicalLabRepository;
 import org.hkijena.olr.services.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,16 +51,28 @@ public class ReservationController {
      * Create a new reservation.
      */
     @PostMapping
-    public ResponseEntity<Reservation> createReservation(@RequestBody Reservation reservation,
+    public ResponseEntity<Reservation> createReservation(@RequestBody ReservationPayload payload,
                                                          Authentication authentication) {
-        // Set the authenticated user as the reservation owner
-        if (authentication.getPrincipal() instanceof UserPrincipal userPrincipal) {
-            reservation.setUser(userPrincipal.getUser());
+        if (!(authentication.getPrincipal() instanceof UserPrincipal userPrincipal)) {
+            return ResponseEntity.status(403).build();
         }
+
+        User user = userPrincipal.getUser();
+
+        // Convert the payload to Reservation
+        PhysicalLab lab = physicalLabRepository.findById(payload.getPhysicalLabId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid lab ID"));
+
+        Reservation reservation = new Reservation();
+        reservation.setPhysicalLab(lab);
+        reservation.setStartTime(payload.getStartTime());
+        reservation.setEndTime(payload.getEndTime());
+        reservation.setUser(user);
 
         Reservation saved = reservationService.createReservation(reservation);
         return ResponseEntity.ok(saved);
     }
+
 
     /**
      * Delete a reservation by ID (only if the user is the owner or an admin).
